@@ -19,7 +19,7 @@ struct ExpressionsChain
 
     /**/
     template <class ExecutedExpression, class InputData>
-    typename ExecutedExpression::ResultType executeExpression(ExecutedExpression *expr, const InputData &data)
+    typename ExecutedExpression::template ResultType<InputData> executeExpression(ExecutedExpression *expr, const InputData &data)
     {
         std::vector<ExpressionWithArgs<ExecutedExpression>> &expressionStorage =
                     get<std::vector<ExpressionWithArgs<ExecutedExpression>>>(m_registeredRulesAllTypes);
@@ -33,7 +33,7 @@ struct ExpressionsChain
         if(ret == expressionStorage.end())
         {
             std::cout << "expr: " << expr->to_string() << " doesnt registered" << std::endl;
-            return typename ExecutedExpression::ResultType();
+            return typename ExecutedExpression::template ResultType<InputData>();
         }
 
         constexpr size_t ExecutedExpressionType = getIndex<std::vector<ExpressionWithArgs<ExecutedExpression>>, std::vector<ExpressionWithArgs<RegisteredRules>>...>() ;
@@ -44,7 +44,7 @@ struct ExpressionsChain
     }
 
     template <size_t ExecutedTypeIndex, class ExecutedExpression, class InputData>
-    typename ExecutedExpression::ResultType executeExpressionByIndex(ExecutedExpression *expr, const ExpressionArgs &argsIndexes, const InputData &inputData)
+    typename ExecutedExpression::template ResultType<InputData> executeExpressionByIndex(ExecutedExpression *expr, const ExpressionArgs &argsIndexes, const InputData &inputData)
     {
         std::cout << "Expression: " << expr->to_string() << " with args: "<< argsIndexes.to_string() << std::endl;
 
@@ -77,11 +77,11 @@ struct ExpressionsChain
                 std::cout << "unknown L type"<<  argsIndexes.to_string() << std::endl;
                 throw "unknown L type";
         }
-        return typename ExecutedExpression::ResultType();
+        return typename ExecutedExpression::template ResultType<InputData>();
     }
 
     template <size_t LTypeIndex, class ExecutedExpression, class InputData>
-    typename ExecutedExpression::ResultType executeExpressionLeftBy(ExecutedExpression *expr, const ExpressionArgs &argsIndexes, const InputData &inputData)
+    typename ExecutedExpression::template ResultType<InputData> executeExpressionLeftBy(ExecutedExpression *expr, const ExpressionArgs &argsIndexes, const InputData &inputData)
     {
         std::cout << "LTypeIndex: " << LTypeIndex << std::endl;
         std::cout << "Expression: " << expr->to_string() << " with args: " << argsIndexes.to_string() << std::endl;
@@ -95,7 +95,7 @@ struct ExpressionsChain
         if(argsIndexes.m_leftArg.second >= expressionStorage.size())
         {
             abort();
-            return typename ExecutedExpression::ResultType();
+            return typename ExecutedExpression::template ResultType<InputData>();
         }
         //Left Execution
         auto *leftExpr = expressionStorage[argsIndexes.m_leftArg.second].m_expressionPtr;
@@ -127,19 +127,19 @@ struct ExpressionsChain
                 std::cout << "unknown R type" << argsIndexes.to_string() << std::endl;
                 throw "unknown R type";
         }
-        return typename ExecutedExpression::ResultType();
+        return typename ExecutedExpression::template ResultType<InputData>();
 
     }
 
     template <size_t RTypeIndex, class ExecutedExpression, class InputData>
-    typename std::remove_pointer<typename std::tuple_element<RTypeIndex, RegisteredRulesTuple>::type::value_type::first_type>::type::ResultType executeExpressionRightBy(ExecutedExpression *expr,
+    typename std::remove_pointer<typename std::tuple_element<RTypeIndex, RegisteredRulesTuple>::type::value_type::first_type>::type::template ResultType<InputData> executeExpressionRightBy(ExecutedExpression *expr,
                 const ExpressionArgs &executedArgsIndexes, const InputData &inputData)
     {
         auto &expressionStorage = std::get<RTypeIndex>(m_registeredRulesAllTypes);
         if(executedArgsIndexes.m_rightArg.second >= expressionStorage.size())
         {
             abort();
-            return typename std::remove_pointer<typename std::tuple_element<RTypeIndex,RegisteredRulesTuple>::type::value_type::first_type>::type::ResultType();
+            return typename std::remove_pointer<typename std::tuple_element<RTypeIndex,RegisteredRulesTuple>::type::value_type::first_type>::type::template ResultType<InputData>();
         }
         //Reft Execution
         auto *rightExpr = expressionStorage[executedArgsIndexes.m_rightArg.second].m_expressionPtr;
@@ -149,7 +149,8 @@ struct ExpressionsChain
 
      /**/
     //Interface expression chain execution
-    typename LogicExpression::ResultType executeChain( const IWMEArray &input, const RuleBindingDataWrapper &binded)
+    template< class InputData>
+    typename LogicExpression::template ResultType<InputData> executeChain( const InputData &input, const RuleBindingDataWrapper &binded)
     {
         return executeExpression(m_finalRule, input);
     }

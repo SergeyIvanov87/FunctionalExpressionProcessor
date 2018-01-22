@@ -165,12 +165,13 @@ int main(int argc, char *argv[])
 
         const FilteringStrategyDataStorage<FilteringBetaMemoryData> par(0);
         const SpecificRuleBindedData emptyParam(par);
-        auto res = chain.executeChain(totalObjectsArray, RuleBindingDataWrapper(false, emptyParam));//(*ptr5)(totalObjectsArray);
-        for (auto val : res)
+        Variable::Variable input (200);
+        auto res = chain.executeChain(/*totalObjectsArray*/ input, RuleBindingDataWrapper(false, emptyParam));//(*ptr5)(totalObjectsArray);
+       /* for (auto val : res)
         {
             std::cout << "collect val: " << std::endl;
             std::cout << val << std::endl;
-        }
+        }*/
     }
     /*
 

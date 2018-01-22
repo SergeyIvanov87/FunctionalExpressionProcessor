@@ -10,16 +10,16 @@ enum MathOperationType
 };
 
 //Declarations
-template<class RHS>
-RHS add(const Variable::Variable &lhs, const RHS &rhs);
+template<class LHS, class RHS>
+RHS add(const LHS &lhs, const RHS &rhs);
 
-template<class RHS>
-RHS sub(const Variable::Variable &lhs, const RHS &rhs);
+template<class LHS, class RHS>
+RHS sub(const LHS &lhs, const RHS &rhs);
 
 
 //Operation Selector
-template<class RHS>
-inline RHS mathOperationSelector(MathOperationType opType, const Variable::Variable &lhs, const RHS &rhs)
+template<class LHS, class RHS>
+inline RHS mathOperationSelector(MathOperationType opType, const LHS &lhs, const RHS &rhs)
 {
     switch(opType)
     {

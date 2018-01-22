@@ -33,6 +33,23 @@ inline bool operationSelector(OperationType opType,const LHS &lhs, const RHS &rh
     return false;
 }
 
+template<class LHS, class RHS>
+inline std::vector<bool> operationSelector(OperationType opType,const std::vector<LHS> &lhs, const RHS &rhs)
+{/*
+    switch(opType)
+    {
+        case EQUAL:
+            return equal(lhs, rhs);
+        case EXIST:
+            return exist(lhs, rhs);
+        default:
+            return false;
+    }
+    return false;
+    */
+    return std::vector<bool> ();
+}
+
 //Implementations
 //1) Compare
 template<class LHS, class RHS>
@@ -129,4 +146,3 @@ inline bool exist<Variable::Variable, Variable::Void>(const Variable::Variable &
     return false;
 }
 #endif
-

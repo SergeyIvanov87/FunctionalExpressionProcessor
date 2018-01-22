@@ -12,7 +12,10 @@ struct LogicExpression : public BaseRuleExpressionData, public RightArgumentWrap
 {
     using BaseExpessionType = BaseRuleExpressionData;
     using RightArgumentType = RightArgumentWrapper<RightArgDataType>;
-    typedef std::vector<bool> ResultType;
+
+    template <class InputData>
+    using ResultType = typename ResultTypeTraits<InputData>::ResultType;
+
     using ConstructorArgs = typename ConstructorArgumentsTraits<typename RightArgumentType::ArgType, RuleId, OperationType, size_t >::ConstructorArgs;
 
 
@@ -32,14 +35,14 @@ struct LogicExpression : public BaseRuleExpressionData, public RightArgumentWrap
     }
 
     template<class LType, class RType>
-    ResultType execute(const LType &lhs, const RType &rhs)
+    ResultType<LType> execute(const LType &lhs, const RType &rhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
         return operationSelector(m_opType, lhs, rhs);
     }
 
     template<class LType>
-    ResultType execute(const LType &lhs)
+    ResultType<LType> execute(const LType &lhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
         return operationSelector(m_opType, lhs, this->getArgument());

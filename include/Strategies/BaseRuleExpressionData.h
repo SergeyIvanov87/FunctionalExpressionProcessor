@@ -137,6 +137,17 @@ struct RightArgumentWrapper<BindingArgumentType>
 
 };
 
+template<class T>
+struct ResultTypeTraits
+{
+    using ResultType = T;
+};
+
+template<class T>
+struct ResultTypeTraits<std::vector<T>>
+{
+    using ResultType = std::vector<T>;
+};
 
 
 template<class T, class ...Other>

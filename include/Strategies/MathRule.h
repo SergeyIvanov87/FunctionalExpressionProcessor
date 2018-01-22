@@ -8,7 +8,10 @@ struct MathExpression : public BaseRuleExpressionData, public RightArgumentWrapp
 {
     using BaseExpessionType = BaseRuleExpressionData;
     using RightArgumentType = RightArgumentWrapper<RightArgDataType>;
-    using ResultType = std::vector<typename RightArgumentType::ArgType>;
+
+    template <class InputData>
+    using ResultType = typename ResultTypeTraits<InputData>::ResultType;
+
     //using ResultType = std::vector<Variable::Variable>;
     using ConstructorArgs = typename ConstructorArgumentsTraits<typename RightArgumentType::ArgType, RuleId, MathOperationType, size_t >::ConstructorArgs;
 
@@ -26,17 +29,18 @@ struct MathExpression : public BaseRuleExpressionData, public RightArgumentWrapp
     }
 
     template<class LType, class RType>
-    ResultType execute(const LType &lhs, const RType &rhs)
+    ResultType<LType> execute(const LType &lhs, const RType &rhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
         return mathOperationSelector(m_opType, lhs, rhs);
     }
 
     template<class LType>
-    ResultType execute(const LType &lhs)
+    ResultType<LType> execute(const LType &lhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
-        return mathOperationSelector(m_opType, lhs, this->getArgument());
+        abort();
+        return ResultType<LType>();
     }
 
 protected:
