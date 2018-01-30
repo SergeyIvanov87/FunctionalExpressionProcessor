@@ -1,5 +1,5 @@
-#ifndef NBO_FUNC_OPERATIONS
-#define NBO_FUNC_OPERATIONS
+#ifndef FUNC_OPERATIONS
+#define FUNC_OPERATIONS
 
 #include "Comparable.h"
 #include <iostream>
@@ -13,10 +13,10 @@ enum FunctionalOperationType
 
 //Declarations
 template<class LHS, class RHS>
-LHS max(LHS &lhs, const RHS &rhs);
+LHS max_op(LHS &lhs, const RHS &rhs);
 
 template<class LHS, class RHS/*, class Compare*/>
-LHS sort(LHS &lhs, const RHS &rhs/*, Compare comp*/);
+LHS sort_op(LHS &lhs, const RHS &rhs/*, Compare comp*/);
 
 //Operation Selector
 template<class LHS, class RHS>
@@ -25,9 +25,11 @@ inline LHS functionalOperationSelector(FunctionalOperationType opType, LHS &lhs,
     switch(opType)
     {
         case MAX:
-            return max(lhs, rhs);
+            return max_op(lhs, rhs);
+            break;
         case SORT:
-            return sort(lhs, rhs);
+            return sort_op(lhs, rhs);
+            break;
         default:
             throw "functionalOperationSelector unknown type";
     }
@@ -37,7 +39,7 @@ inline LHS functionalOperationSelector(FunctionalOperationType opType, LHS &lhs,
 //Implementations
 //1) max
 template<class LHS, class RHS>
-inline LHS max(LHS &lhs, const RHS &rhs)
+inline LHS max_op(LHS &lhs, const RHS &rhs)
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     abort();
@@ -45,13 +47,14 @@ inline LHS max(LHS &lhs, const RHS &rhs)
 }
 
 template<class LHS, class RHS/*, class Compare*/>
-LHS sort(LHS &lhs, const RHS &rhs/*, Compare comp*/)
+LHS sort_op(LHS &lhs, const RHS &rhs/*, Compare comp*/)
 {
     abort();
+    return lhs;
 }
-
+/*
 template<>
-inline std::vector<Variable::Variable> max<std::vector<Variable::Variable>, Variable::Void>(std::vector<Variable::Variable> &lhs, const Variable::Void &rhs)
+inline std::vector<Variable::Variable> max_op<std::vector<Variable::Variable>, Variable::Void>(std::vector<Variable::Variable> &lhs, const Variable::Void &rhs)
 {
     //TODO !!!
 //    std::sort(lhs.begin(), lhs.end());
@@ -61,15 +64,14 @@ inline std::vector<Variable::Variable> max<std::vector<Variable::Variable>, Vari
 }
 
 template<>
-inline std::vector<Variable::Variable> sort<std::vector<Variable::Variable>, Variable::Void>
+inline std::vector<Variable::Variable> sort_op<std::vector<Variable::Variable>, Variable::Void>
     (std::vector<Variable::Variable> &lhs, const Variable::Void &rhs)
 {
     //TODO !!!
     //std::sort(lhs.begin(), lhs.end());
-    
+
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     return lhs;
 }
-
+*/
 #endif
-

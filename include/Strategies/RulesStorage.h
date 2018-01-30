@@ -1,13 +1,12 @@
-#ifndef NBO_RULES_STORAGE_H
-#define NBO_RULES_STORAGE_H
-#include "LogicRule.h"
-#include "MathRule.h"
-#include "StatisticRule.h"
+#ifndef RULES_STORAGE_H
+#define RULES_STORAGE_H
 
 #include <tuple>
+#include <memory>
 #include <type_traits>
 #include <string>
-#include <iostream>
+#include <map>
+#include "BaseRuleExpressionData.h"
 
 
 //Holds all created Uniques Rules for registered types

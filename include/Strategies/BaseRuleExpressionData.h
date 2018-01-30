@@ -1,5 +1,5 @@
-#ifndef NBO_BASE_RULE_DATA_H
-#define NBO_BASE_RULE_DATA_H
+#ifndef BASE_RULE_DATA_H
+#define BASE_RULE_DATA_H
 #include "GlobalRuleData.h"
 
 enum ExpressionType
@@ -54,8 +54,8 @@ struct BaseRuleExpressionData
 {
     typedef std::string RuleId;
 
-    BaseRuleExpressionData(const RuleId &id, size_t classFieldId) :
-        m_name(id), m_classFiledId(classFieldId)
+    BaseRuleExpressionData(const RuleId &id) :
+        m_name(id)
     {
     }
     const RuleId &getRuleId() const
@@ -66,12 +66,10 @@ struct BaseRuleExpressionData
     std::string to_string() const
     {
         std::string ret(m_name);
-        ret += ", classFiledId: " + std::to_string(m_classFiledId);
         return ret;
     }
 protected:
     RuleId m_name;
-    size_t m_classFiledId;
 };
 
 
@@ -101,7 +99,7 @@ template <>
 struct RightArgumentWrapper<Variable::Void>
 {
     typedef Variable::Void ArgType;
-    RightArgumentWrapper(ArgType t)
+    RightArgumentWrapper()
     {
     }
     const ArgType &getArgument() const
@@ -153,7 +151,7 @@ struct ResultTypeTraits<std::vector<T>>
 template<class T, class ...Other>
 struct ConstructorArgumentsTraits
 {
-    typedef std::tuple<Other..., T> ConstructorArgs;
+    typedef std::tuple<T, Other...> ConstructorArgs;
 };
 
 template<class ...Other>
@@ -199,4 +197,4 @@ constexpr int getIndex()
 {
    return get_internal<0,T, Types...>::type::index;
 }
-#endif //NBO_BASE_RULE_DATA_H
+#endif //BASE_RULE_DATA_H

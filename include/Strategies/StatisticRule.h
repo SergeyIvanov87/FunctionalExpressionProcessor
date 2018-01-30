@@ -1,25 +1,21 @@
-#ifndef NBO_STATISTIC_RULE_H
-#define NBO_STATISTIC_RULE_H
+#ifndef STATISTIC_RULE_H
+#define STATISTIC_RULE_H
 
 #include <memory>
 #include "BaseRuleExpressionData.h"
 #include "func_operation.h"
 #include "GlobalRuleData.h"
 
-template<class RightArgDataType>
-struct StatisticRulesExpression : public BaseRuleExpressionData, public RightArgumentWrapper<RightArgDataType>
+struct StatisticRulesExpression : public BaseRuleExpressionData
 {
     using BaseExpessionType = BaseRuleExpressionData;
-    using RightArgumentType = RightArgumentWrapper<RightArgDataType>;
-    using ConstructorArgs = std::tuple<RuleId, FunctionalOperationType, size_t, size_t>;
+    using ConstructorArgs = std::tuple<RuleId, FunctionalOperationType>;
 
     template <class InputData>
     using ResultType = typename ResultTypeTraits<InputData>::ResultType;
 
-    StatisticRulesExpression(const RuleId &id, FunctionalOperationType opType, size_t classTypeId,
-     const typename RightArgumentType::ArgType &rightArg = typename RightArgumentType::ArgType(), size_t top_count = 0) :
-        BaseRuleExpressionData(id, classTypeId),
-        RightArgumentType(rightArg),
+    StatisticRulesExpression(const RuleId &id, FunctionalOperationType opType, size_t top_count = 0) :
+        BaseRuleExpressionData(id),
         m_opType(opType), m_result_top_count(top_count)
     {
     }
@@ -40,12 +36,10 @@ struct StatisticRulesExpression : public BaseRuleExpressionData, public RightArg
     ResultType<LType> execute(const LType &lhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
-        return functionalOperationSelector(m_opType, lhs, this->getArgument());
+        return functionalOperationSelector(m_opType, lhs, boost::blank());
     }
 private:
     FunctionalOperationType m_opType;
     size_t m_result_top_count;
 };
-
-using StatisticRulesExpressionDef = MathExpression<Variable::Void>;
-#endif //NBO_STATISTIC_RULE_H
+#endif //STATISTIC_RULE_H

@@ -13,7 +13,7 @@ INCLUDE     = $(addprefix -I, $(INC))
 LDFLAGS		= -L/usr/local/lib
 LIBS		= -lnsl -lpthread -lboost_system -lboost_filesystem -lboost_thread
 
-C_FLAGS     = -std=c++11 -O2 -g -Wall $(INCLUDE) $(DEFINES)
+C_FLAGS     = -std=c++11 -g -Wall -ftemplate-backtrace-limit=0 $(INCLUDE) $(DEFINES)
 CC		    = g++
 
 TRUNKMODLIST := ./ src src/Nodes src/Rules

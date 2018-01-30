@@ -1,5 +1,5 @@
-#ifndef NBO_EXPRESSION_CHAIN_H
-#define NBO_EXPRESSION_CHAIN_H
+#ifndef EXPRESSION_CHAIN_H
+#define EXPRESSION_CHAIN_H
 #include <iostream>
 #include <array>
 #include <type_traits>
@@ -270,4 +270,4 @@ private:
     RegisteredRulesTuple m_registeredRulesAllTypes;
 
 };
-#endif //NBO_EXPRESSION_CHAIN_H
+#endif //EXPRESSION_CHAIN_H

@@ -3,19 +3,21 @@
 #include "BaseRuleExpressionData.h"
 
 template<class Data>
-class DataProviderExpression : public BaseRuleExpressionData, public  RightArgumentWrapper<RightArgDataType>
+class DataProviderExpression : public BaseRuleExpressionData, public  RightArgumentWrapper<Data>
 {
 public:
     using BaseExpessionType = BaseRuleExpressionData;
-    using RightArgumentType = RightArgumentWrapper<RightArgDataType>;
-    using ResultType = typename RightArgumentType::ArgType;
-    using ConstructorArgs = typename ConstructorArgumentsTraits<typename RightArgumentType::ArgType, RuleId >::ConstructorArgs;
+    using ArgumentDataType = RightArgumentWrapper<Data>;
+
+    template<class InputData>
+    using ResultType = typename ArgumentDataType::ArgType;
+    using ConstructorArgs = typename ConstructorArgumentsTraits<RuleId, typename ArgumentDataType::ArgType>::ConstructorArgs;
 
 
     DataProviderExpression(const RuleId &name,
-                    const typename RightArgumentType::ArgType &rightArg = typename RightArgumentType::ArgType()) :
-        BaseRuleExpressionData(name, classFiledId),
-        RightArgumentType(rightArg)
+                    const typename ArgumentDataType::ArgType &rightArg) :
+        BaseRuleExpressionData(name),
+        ArgumentDataType(rightArg)
     {}
 
     virtual std::string to_string() const
@@ -26,16 +28,16 @@ public:
 
     template<class LType, class RType>
     /*typename ResultTypeTraits<RType>::ResultType*/
-    ResultType execute(const LType &lhs, const RType &rhs)
+    ResultType<LType> execute(const LType &lhs, const RType &rhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
         abort();
-        return ResultType();
+        return ResultType<LType>();
     }
 
     template<class LType>
     /*typename ResultTypeTraits<RType>::ResultType*/
-    ResultType execute(const LType &lhs)
+    ResultType<LType> execute(const LType &lhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
         return this->getArgument();
@@ -44,19 +46,21 @@ private:
 };
 
 template<>
-class DataProviderExpression : public BaseRuleExpressionData, public  RightArgumentWrapper<Variable::Void>
+class DataProviderExpression<Variable::Void> : public BaseRuleExpressionData, public  RightArgumentWrapper<Variable::Void>
 {
 public:
     using BaseExpessionType = BaseRuleExpressionData;
-    using RightArgumentType = RightArgumentWrapper<Variable::Void>;
+    using ArgumentDataType = RightArgumentWrapper<Variable::Void>;
+
+    template<class InputData>
     using ResultType = Variable::Variable;
 
-    using ConstructorArgs = typename ConstructorArgumentsTraits<typename RightArgumentType::ArgType, RuleId, size_t >::ConstructorArgs;
+    using ConstructorArgs = typename ConstructorArgumentsTraits<typename ArgumentDataType::ArgType, RuleId, size_t >::ConstructorArgs;
 
 
-    DataProviderExpression(const RuleId &name, size_t classFiledId) :
-        BaseRuleExpressionData(name, classFiledId),
-        RightArgumentType(),
+    DataProviderExpression(const RuleId &name, size_t classFieldId) :
+        BaseRuleExpressionData(name),
+        ArgumentDataType(),
         m_classFiledId(classFieldId)
     {}
 
@@ -68,21 +72,21 @@ public:
     }
 
     template<class LType, class RType>
-    ResultType execute(const LType &lhs, const RType &rhs)
+    ResultType<LType> execute(const LType &lhs, const RType &rhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
         abort();
-        return ResultType();
+        return ResultType<LType>();
     }
 
     template<class LType>
-    std::vector<ResultType> execute(const std::vector<LType> &lhs)
+    std::vector<ResultType<LType>> execute(const std::vector<LType> &lhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
         return lhs->getAttribute(m_classFiledId);
     }
     template<class LType>
-    ResultType execute(const LType &lhs)
+    ResultType<LType>  execute(const LType &lhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
         return lhs->getAttribute(m_classFiledId);

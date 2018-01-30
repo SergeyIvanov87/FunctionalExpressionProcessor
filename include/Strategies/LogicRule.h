@@ -1,5 +1,5 @@
-#ifndef NBO_RULES_H
-#define NBO_RULES_H
+#ifndef LOGIC_RULE_H
+#define LOGIC_RULE_H
 
 #include <vector>
 #include <string>
@@ -7,30 +7,24 @@
 #include "BaseRuleExpressionData.h"
 #include "operation.h"
 
-template<class RightArgDataType>
-struct LogicExpression : public BaseRuleExpressionData, public RightArgumentWrapper<RightArgDataType>
+struct LogicExpression : public BaseRuleExpressionData
 {
     using BaseExpessionType = BaseRuleExpressionData;
-    using RightArgumentType = RightArgumentWrapper<RightArgDataType>;
 
     template <class InputData>
     using ResultType = typename ResultTypeTraits<InputData>::ResultType;
 
-    using ConstructorArgs = typename ConstructorArgumentsTraits<typename RightArgumentType::ArgType, RuleId, OperationType, size_t >::ConstructorArgs;
+    using ConstructorArgs = typename ConstructorArgumentsTraits<RuleId, OperationType>::ConstructorArgs;
 
-
-    LogicExpression(const RuleId &name, OperationType opType, size_t classFiledId,
-                    const typename RightArgumentType::ArgType &rightArg = typename RightArgumentType::ArgType()) :
-        BaseRuleExpressionData(name, classFiledId),
-        RightArgumentType(rightArg),
+    LogicExpression(const RuleId &name, OperationType opType) :
+        BaseRuleExpressionData(name),
         m_opType(opType)
     {}
 
     virtual std::string to_string() const
     {
         std::string ret(m_name);
-        ret = ret + ", opType: " + std::to_string(m_opType) +
-                    ", classFiledId: " + std::to_string(m_classFiledId);
+        ret = ret + ", opType: " + std::to_string(m_opType);
         return ret;
     }
 
@@ -45,15 +39,9 @@ struct LogicExpression : public BaseRuleExpressionData, public RightArgumentWrap
     ResultType<LType> execute(const LType &lhs)
     {
         std::cout << __PRETTY_FUNCTION__ << ": " << to_string() << std::endl;
-        return operationSelector(m_opType, lhs, this->getArgument());
+        return operationSelector(m_opType, lhs);
     }
 private:
     OperationType m_opType;
 };
-
-//Export
-template <class T>
-using ConstantRule = LogicExpression<T>;
-using ExistParamRule = LogicExpression<Variable::Void>;
-using BindingParamRule = LogicExpression<BindingArgumentType>;
 #endif

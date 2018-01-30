@@ -1,7 +1,7 @@
-#ifndef NBO_MATH_OPERATIONS_H
-#define NBO_MATH_OPERATIONS_H
+#ifndef MATH_OPERATIONS_H
+#define MATH_OPERATIONS_H
 
-#include "Comparable.h"
+#include "MathOperationImpl.h"
 enum MathOperationType
 {
     ADD = 0,
@@ -11,22 +11,34 @@ enum MathOperationType
 
 //Declarations
 template<class LHS, class RHS>
-RHS add(const LHS &lhs, const RHS &rhs);
-
+LHS add(const LHS &lhs, const RHS &rhs);
+/* Declare Specific Types Here...
+ *
+template<class RHS>
+inline RHS add(const Variable::Variable &lhs, const RHS &rhs);
+template<class RHS>
+inline size_t add(const size_t &lhs, const RHS &rhs);
+inline size_t add(const size_t &lhs, const Variable::Variable &rhs);
+*/
 template<class LHS, class RHS>
-RHS sub(const LHS &lhs, const RHS &rhs);
-
+LHS sub(const LHS &lhs, const RHS &rhs);
+/* Declare Specific Types Here...
+ *
+ */
 
 //Operation Selector
 template<class LHS, class RHS>
-inline RHS mathOperationSelector(MathOperationType opType, const LHS &lhs, const RHS &rhs)
+inline LHS mathOperationSelector(MathOperationType opType, const LHS &lhs, const RHS &rhs)
 {
+    std::cout << "opType: " << opType << std::endl;
     switch(opType)
     {
         case ADD:
             return add(lhs, rhs);
+            break;
         case SUB:
             return sub(lhs, rhs);
+            break;
         default:
             throw "invalid argument 'mathOperationSelector'";
     }
@@ -35,26 +47,91 @@ inline RHS mathOperationSelector(MathOperationType opType, const LHS &lhs, const
 
 
 
-//Implementations
-//1) Compare
+//Common Implementations
+template<class LHS, class RHS>
+LHS add(const LHS &lhs, const RHS &rhs)
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    return AddImpl<LHS, RHS>::execute(lhs, rhs);
+}
+template<class LHS, class RHS>
+LHS sub(const LHS &lhs, const RHS &rhs)
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    return SubImpl<LHS, RHS>::execute(lhs, rhs);
+}
+
+//Specific Implementations
+/*
 template<class RHS>
 inline RHS add(const Variable::Variable &lhs, const RHS &rhs)
 {
+    std::cout << __FUNCTION__ << std::endl;
     abort();
-    //return false;
+    return rhs;
+}
+/////
+
+template<class RHS>
+inline size_t add(const size_t &lhs, const RHS &rhs)
+{
+    std::cout << __FUNCTION__ << std::endl;
+    return rhs + lhs;
 }
 
+inline size_t add(const size_t &lhs, const Variable::Variable &rhs)
+{
+    std::cout << __FUNCTION__ << std::endl;
+    switch(rhs.which())
+    {
+        case Variable::SIZE:
+            return boost::get<size_t>(rhs) + lhs;
+        default:
+        {
+            throw "invalid argument 'add'";
+            return 0;
+        }
+    }
+    return 0;
+}*/
+
+/*
 template<class RHS>
 inline RHS sub(const Variable::Variable &lhs, const RHS &rhs)
 {
+    std::cout << __FUNCTION__ << std::endl;
     abort();
-    //return false;
+    return rhs;
+}
+
+//Specific Implementations
+template<class RHS>
+inline RHS sub(const size_t &lhs, const RHS &rhs)
+{
+    std::cout << __FUNCTION__ << std::endl;
+    return rhs + lhs;
+}
+inline size_t sub(const size_t &lhs, const Variable::Variable &rhs)
+{
+    std::cout << __FUNCTION__ << std::endl;
+    switch(rhs.which())
+    {
+        case Variable::SIZE:
+            return lhs - boost::get<size_t>(rhs);
+        default:
+        {
+            throw "invalid argument 'add'";
+            return 0;
+        }
+    }
+    return 0;
 }
 
 template<>
 inline size_t add<size_t>(const Variable::Variable &lhs, const size_t &rhs)
 {
 
+    std::cout << __FUNCTION__ << std::endl;
     switch(lhs.which())
     {
         case Variable::SIZE:
@@ -98,4 +175,5 @@ inline Variable::Void sub<Variable::Void>(const Variable::Variable &lhs, const V
 {
     return Variable::Void ();
 }
-#endif //NBO_MATH_OPERATIONS_H
+*/
+#endif //MATH_OPERATIONS_H

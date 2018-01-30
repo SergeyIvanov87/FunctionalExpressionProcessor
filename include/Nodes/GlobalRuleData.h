@@ -17,9 +17,9 @@ public:
     typedef Container WrappedContainerType;
     friend class FilteringBetaMemoryData;
     template <class LogicRule, class ...OtherRules> friend class ExpressionsChain;
-    template <class RightArg> friend class MathExpression;
-    template <class RightArg> friend class LogicExpression;
-    template <class RightArg> friend class StatisticRulesExpression;
+    /*template <class RightArg> */friend class MathExpression;
+    /*template <class RightArg> */friend class LogicExpression;
+    /*template <class RightArg> */friend class StatisticRulesExpression;
     SortedContainerWrapper(Container &in) :
         m_container(in)
     {

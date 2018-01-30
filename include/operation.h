@@ -18,7 +18,22 @@ bool exist(const LHS &lhs, const RHS &rhs);
 
 
 //Operation Selector
-template<class LHS, class RHS>
+template<class LHS>
+inline bool operationSelector(OperationType opType, const LHS &lhs)
+{
+    switch(opType)
+    {
+        case EQUAL:
+            return equal(lhs, boost::blank());
+        case EXIST:
+            return exist(lhs, boost::blank());
+        default:
+            return false;
+    }
+    return false;
+}
+
+template<class LHS, class RHS = boost::blank>
 inline bool operationSelector(OperationType opType,const LHS &lhs, const RHS &rhs)
 {
     switch(opType)
@@ -33,7 +48,7 @@ inline bool operationSelector(OperationType opType,const LHS &lhs, const RHS &rh
     return false;
 }
 
-template<class LHS, class RHS>
+template<class LHS, class RHS = boost::blank>
 inline std::vector<bool> operationSelector(OperationType opType,const std::vector<LHS> &lhs, const RHS &rhs)
 {/*
     switch(opType)
@@ -140,8 +155,10 @@ inline bool exist<Variable::Variable, Variable::Void>(const Variable::Variable &
     {
         case Variable::VOID:
             return false;
+            break;
         default:
             return true;
+            break;
     }
     return false;
 }
