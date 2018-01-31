@@ -21,7 +21,9 @@ struct MathExpression : public BaseRuleExpressionData
 
     std::string to_string() const
     {
-        return "MathExpression::" + BaseRuleExpressionData::to_string() + std::to_string(m_opType);
+        return "MathExpression, " + BaseRuleExpressionData::to_string()
+                + ", OpType: "
+                + std::to_string(m_opType);
     }
 
     template<class LType, class RType>

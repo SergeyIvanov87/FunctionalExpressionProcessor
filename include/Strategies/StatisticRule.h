@@ -22,7 +22,8 @@ struct StatisticRulesExpression : public BaseRuleExpressionData
 
     std::string to_string() const
     {
-        return "StatisticRulesExpression";
+        return "StatisticRulesExpression, " + BaseRuleExpressionData::to_string()
+               + ", opType: " + std::to_string(m_opType);
     }
 
     template<class LType, class RType>

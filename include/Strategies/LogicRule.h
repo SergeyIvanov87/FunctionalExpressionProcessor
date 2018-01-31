@@ -23,9 +23,8 @@ struct LogicExpression : public BaseRuleExpressionData
 
     virtual std::string to_string() const
     {
-        std::string ret(m_name);
-        ret = ret + ", opType: " + std::to_string(m_opType);
-        return ret;
+        return "LogicExpression, " + BaseRuleExpressionData::to_string()
+                + ", opType: " + std::to_string(m_opType);
     }
 
     template<class LType, class RType>

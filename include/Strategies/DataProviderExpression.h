@@ -22,8 +22,8 @@ public:
 
     virtual std::string to_string() const
     {
-        std::string ret(m_name);
-        return ret;
+        return "DataProviderExpression, " + BaseRuleExpressionData::to_string();
+                                    //TODO print argument
     }
 
     template<class LType, class RType>
@@ -66,9 +66,9 @@ public:
 
     virtual std::string to_string() const
     {
-        std::string ret(m_name);
-        ret = ret + ", classFiledId: " + std::to_string(m_classFiledId);
-        return ret;
+        return "DataProviderExpression, " + BaseRuleExpressionData::to_string()
+                                    //TODO print argument
+                + ", classFiledId: " + std::to_string(m_classFiledId);
     }
 
     template<class LType, class RType>

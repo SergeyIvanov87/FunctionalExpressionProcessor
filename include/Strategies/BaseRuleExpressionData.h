@@ -22,10 +22,12 @@ struct ExpressionArgs
         ret += std::to_string(m_exist);
         if(m_exist)
         {
+            ret += " - ";
             ret += std::string("LArg[type: ") + std::to_string(m_leftArg.first)
                 + std::string(", index: ") + std::to_string(m_leftArg.second);
             ret += std::string("], RArg[type: ") + std::to_string(m_rightArg.first)
                 + std::string(", index: ") + std::to_string(m_rightArg.second);
+            ret += "]";
         }
         return ret;
     }
@@ -65,8 +67,7 @@ struct BaseRuleExpressionData
 
     std::string to_string() const
     {
-        std::string ret(m_name);
-        return ret;
+        return std::string("\"") + getRuleId() + "\"";
     }
 protected:
     RuleId m_name;
