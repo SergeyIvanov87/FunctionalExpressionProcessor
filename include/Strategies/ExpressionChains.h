@@ -3,11 +3,12 @@
 #include <iostream>
 #include <array>
 #include <type_traits>
+#include <utility>
 #include "Comparable.h"
 #include "BaseRuleExpressionData.h"
 
 
-template<class LogicExpression, class ...RegisteredRules>
+template<class FinalExpression, class ...RegisteredRules>
 struct ExpressionsChain
 {
     typedef std::vector<IWMEPtr> IWMEArray;
@@ -16,35 +17,16 @@ struct ExpressionsChain
     typedef std::tuple<
                     std::vector<
                             ExpressionWithArgs<RegisteredRules>>...> RegisteredRulesTuple;
+    typedef std::tuple<RegisteredRules *...> RegisteredExpressionsTuple;
 
-    /**/
-    template <class ExecutedExpression, class InputData>
-    typename ExecutedExpression::template ResultType<InputData> executeExpression(ExecutedExpression *expr, const InputData &data)
+    ExpressionsChain(FinalExpression *finalExprPtr) :
+        m_finalRuleExpr(finalExprPtr)
     {
-        std::vector<ExpressionWithArgs<ExecutedExpression>> &expressionStorage =
-                    get<std::vector<ExpressionWithArgs<ExecutedExpression>>>(m_registeredRulesAllTypes);
-
-        std::cout << "find expr: " << expr->to_string() << " in array, size: " << expressionStorage.size() << std::endl;
-        auto ret = std::find_if(expressionStorage.begin(), expressionStorage.end(),
-                                [expr](const ExpressionWithArgs<ExecutedExpression> &pair)
-        {
-            return expr == pair.m_expressionPtr;
-        });
-        if(ret == expressionStorage.end())
-        {
-            std::cout << "expr: " << expr->to_string() << " doesnt registered" << std::endl;
-            return typename ExecutedExpression::template ResultType<InputData>();
-        }
-
-        constexpr size_t ExecutedExpressionType = getIndex<std::vector<ExpressionWithArgs<ExecutedExpression>>, std::vector<ExpressionWithArgs<RegisteredRules>>...>() ;
-        std::cout << "find index for expr: " << expr->to_string() << ", index: " << ExecutedExpressionType << std::endl;
-
-        ExpressionArgs exprArgs = ret->m_expressionArgs;
-        return executeExpressionByIndex<ExecutedExpressionType>(expr, exprArgs, data);
     }
 
-    template <size_t ExecutedTypeIndex, class ExecutedExpression, class InputData>
-    typename ExecutedExpression::template ResultType<InputData> executeExpressionByIndex(ExecutedExpression *expr, const ExpressionArgs &argsIndexes, const InputData &inputData)
+protected:
+    template <class ExecutedExpression, class InputData>
+    typename ExecutedExpression::template ResultType<InputData> executeExpression(ExecutedExpression *expr, const ExpressionArgs &argsIndexes, const InputData &inputData)
     {
         std::cout << "Expression: " << expr->to_string() << " with args: "<< argsIndexes.to_string() << std::endl;
 
@@ -53,31 +35,17 @@ struct ExpressionsChain
             return expr->execute(inputData);
         }
 
-        //detect Left expression type
-        switch(argsIndexes.m_leftArg.first)
+        return std::apply([this, &argsIndexes, &inputData, expr](RegisteredRules *...t)
         {
-            case 0:
-            {
-                return executeExpressionLeftBy<0>(expr, argsIndexes, inputData);
-            }
-            case 1:
-            {
-                return executeExpressionLeftBy<1>(expr, argsIndexes, inputData);
-            }
-            case 2:
-            {
-                return executeExpressionLeftBy<2>(expr, argsIndexes, inputData);
-            }
-            case 3:
-            {
-                return executeExpressionLeftBy<3>(expr, argsIndexes, inputData);
-            }
-
-            default:
-                std::cout << "unknown L type"<<  argsIndexes.to_string() << std::endl;
-                throw "unknown L type";
-        }
-        return typename ExecutedExpression::template ResultType<InputData>();
+            using expander = typename ExecutedExpression::template ResultType<InputData>[];
+            expander rrr{
+                (argsIndexes.m_leftArg.first == getIndex<std::vector<ExpressionWithArgs<RegisteredRules>>, std::vector<ExpressionWithArgs<RegisteredRules>>...>()
+                    ?
+                     executeExpressionLeftBy<getIndex<std::vector<ExpressionWithArgs<RegisteredRules>>, std::vector<ExpressionWithArgs<RegisteredRules>>...>()>(expr, argsIndexes, inputData)
+                    :
+                    typename ExecutedExpression::template ResultType<InputData>())...};
+                return rrr[argsIndexes.m_leftArg.first];
+        }, RegisteredExpressionsTuple());
     }
 
     template <size_t LTypeIndex, class ExecutedExpression, class InputData>
@@ -102,33 +70,18 @@ struct ExpressionsChain
         ExpressionArgs leftExprArgs = expressionStorage[argsIndexes.m_leftArg.second].m_expressionArgs;
 
         //execute left expression
-        auto leftRes = executeExpressionByIndex<LTypeIndex>(leftExpr, leftExprArgs, inputData);
-
-        switch(argsIndexes.m_rightArg.first)
+        auto leftRes = executeExpression(leftExpr, leftExprArgs, inputData);
+        return std::apply([this, &leftRes, &argsIndexes, &inputData, expr](RegisteredRules *...t)
         {
-            case 0:
-            {
-                //right & total execution
-                return expr->execute(leftRes, executeExpressionRightBy<0>(expr, argsIndexes, inputData));
-            }
-            case 1:
-            {
-                return expr->execute(leftRes, executeExpressionRightBy<1>(expr, argsIndexes, inputData));
-            }
-            case 2:
-            {
-                return expr->execute(leftRes, executeExpressionRightBy<2>(expr, argsIndexes, inputData));
-            }
-            case 3:
-            {
-                return expr->execute(leftRes, executeExpressionRightBy<3>(expr, argsIndexes, inputData));
-            }
-            default:
-                std::cout << "unknown R type" << argsIndexes.to_string() << std::endl;
-                throw "unknown R type";
-        }
-        return typename ExecutedExpression::template ResultType<InputData>();
-
+            using expander = typename ExecutedExpression::template ResultType<InputData>[];
+            expander rrr{
+                (argsIndexes.m_rightArg.first == getIndex<std::vector<ExpressionWithArgs<RegisteredRules>>, std::vector<ExpressionWithArgs<RegisteredRules>>...>()
+                    ?
+                    expr->execute(leftRes, executeExpressionRightBy<getIndex<std::vector<ExpressionWithArgs<RegisteredRules>>, std::vector<ExpressionWithArgs<RegisteredRules>>...>()>(expr, argsIndexes, inputData))
+                    :
+                    typename ExecutedExpression::template ResultType<InputData>())...};
+                return rrr[argsIndexes.m_rightArg.first];
+        }, RegisteredExpressionsTuple());
     }
 
     template <size_t RTypeIndex, class ExecutedExpression, class InputData>
@@ -141,47 +94,19 @@ struct ExpressionsChain
             abort();
             return typename std::remove_pointer<typename std::tuple_element<RTypeIndex,RegisteredRulesTuple>::type::value_type::first_type>::type::template ResultType<InputData>();
         }
+
         //Reft Execution
         auto *rightExpr = expressionStorage[executedArgsIndexes.m_rightArg.second].m_expressionPtr;
         const ExpressionArgs &rightExprArg = expressionStorage[executedArgsIndexes.m_rightArg.second].m_expressionArgs;
-        return executeExpressionByIndex<RTypeIndex>(rightExpr, rightExprArg, inputData);
+        return executeExpression(rightExpr, rightExprArg, inputData);
     }
 
-     /**/
+public:
     //Interface expression chain execution
     template< class InputData>
-    typename LogicExpression::template ResultType<InputData> executeChain( const InputData &input, const RuleBindingDataWrapper &binded)
+    typename FinalExpression::template ResultType<InputData> executeChain( const InputData &input, const RuleBindingDataWrapper &binded)
     {
-        return executeExpression(m_finalRule, input);
-    }
-
-    //Add Expression in chain
-    ExpressionArgs &addFinalExpression(LogicExpression *expr)
-    {
-        std::cout << "AddExpression: " << expr->to_string() << std::endl;
-        m_finalRule = expr;
-
-         //get specific vector for this 'Expression' type
-        std::vector<ExpressionWithArgs<LogicExpression>> &expressionStorage = get<std::vector<ExpressionWithArgs<LogicExpression>>>(m_registeredRulesAllTypes);
-
-        //find already registered expression
-        size_t registeredIndex = 0, currentIndex = 0;
-        bool found = false;
-        for(auto &expres : expressionStorage)
-        {
-            if(expres.m_expressionPtr == m_finalRule)
-            {
-                registeredIndex = currentIndex;
-                found = true;
-                break;
-            }
-        }
-        if(!found)
-        {
-            std::cout << "add exprerrion to array: " << m_finalRule->to_string() << std::endl;
-            expressionStorage.emplace_back(m_finalRule, ExpressionArgs());
-        }
-        return expressionStorage.back().m_expressionArgs;
+        return executeExpression(m_finalRuleExpr.m_expressionPtr, m_finalRuleExpr.m_expressionArgs, input);
     }
 
     template <class Expression>
@@ -196,7 +121,7 @@ struct ExpressionsChain
         /*TODO or push_front ??? */
 
         //get specific vector for this 'Expression' type
-        std::vector<ExpressionWithArgs<Expression>> &expressionStorage = get<std::vector<ExpressionWithArgs<Expression>>>(m_registeredRulesAllTypes);
+        std::vector<ExpressionWithArgs<Expression>> &expressionStorage = std::get<std::vector<ExpressionWithArgs<Expression>>>(m_registeredRulesAllTypes);
 
         //find existing expression ptr
         size_t registeredIndex = 0, currentIndex = 0;
@@ -241,7 +166,7 @@ struct ExpressionsChain
         /*TODO or push_front ??? */
 
         //get specific vector for this 'Expression' type
-        std::vector<ExpressionWithArgs<Expression>> &expressionStorage = get<std::vector<ExpressionWithArgs<Expression>>>(m_registeredRulesAllTypes);
+        std::vector<ExpressionWithArgs<Expression>> &expressionStorage = std::get<std::vector<ExpressionWithArgs<Expression>>>(m_registeredRulesAllTypes);
 
         //find existing expression ptr
         size_t registeredIndex = 0, currentIndex = 0;
@@ -264,9 +189,14 @@ struct ExpressionsChain
         expressionStorage.emplace_back(expression, ExpressionArgs());
         return expressionStorage.back().m_expressionArgs;
     }
+    ExpressionArgs &getFinalExpressionArgs()
+    {
+        return m_finalRuleExpr.m_expressionArgs;
+    };
+
 private:
     //chain contains, index of the next Expression type for execution at the next step
-    LogicExpression *m_finalRule;
+    ExpressionWithArgs<FinalExpression> m_finalRuleExpr;
     RegisteredRulesTuple m_registeredRulesAllTypes;
 
 };

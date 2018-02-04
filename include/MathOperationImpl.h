@@ -2,7 +2,6 @@
 #define MATH_OPERATIONS_IMPL_H
 
 #include "Comparable.h"
-
 //Addition
 template <class L, class R>
 struct AddImpl
@@ -46,9 +45,6 @@ struct AddImpl<Variable::Variable, Variable::Variable>
     }
 };
 
-
-
-
 //Substraction
 template <class L, class R>
 struct SubImpl
@@ -91,4 +87,31 @@ struct SubImpl<Variable::Variable, Variable::Variable>
         return 1;
     }
 };
+
+#include "forbidden.h"
+
+//Forbidded operations
+template<class R>
+FORBIDDED(AddImpl, std::string, R)
+template<class L>
+FORBIDDED(AddImpl, L, std::string)
+template<>
+FORBIDDED(AddImpl, std::string, std::string)
+template<>
+FORBIDDED(AddImpl, std::string, Variable::Variable)
+template<>
+FORBIDDED(AddImpl, Variable::Variable, std::string)
+
+///////////////////////////////////////////
+template<class R>
+FORBIDDED(SubImpl, std::string, R)
+template<class L>
+FORBIDDED(SubImpl, L, std::string)
+template<>
+FORBIDDED(SubImpl, std::string, std::string)
+template<>
+FORBIDDED(SubImpl, std::string, Variable::Variable)
+template<>
+FORBIDDED(SubImpl, Variable::Variable, std::string)
+
 #endif //MATH_OPERATIONS_IMPL_H

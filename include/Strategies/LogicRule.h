@@ -12,7 +12,7 @@ struct LogicExpression : public BaseRuleExpressionData
     using BaseExpessionType = BaseRuleExpressionData;
 
     template <class InputData>
-    using ResultType = typename ResultTypeTraits<InputData>::ResultType;
+    using ResultType = bool;//typename ResultTypeTraits<InputData>::ResultType;
 
     using ConstructorArgs = typename ConstructorArgumentsTraits<RuleId, OperationType>::ConstructorArgs;
 

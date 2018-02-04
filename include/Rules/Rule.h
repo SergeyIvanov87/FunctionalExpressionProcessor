@@ -8,8 +8,7 @@ class Rule : public IRule
 {
 public:
     using RuleExpressionsChain = ExpressionsChain<FinalLogicRule,
-                        FinalLogicRule,
-                        Other...>;
+                                                  Other...>;
 
     Rule(const StrategyRuleId &id) :
         IRule(),

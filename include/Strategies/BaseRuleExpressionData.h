@@ -198,4 +198,5 @@ constexpr int getIndex()
 {
    return get_internal<0,T, Types...>::type::index;
 }
+
 #endif //BASE_RULE_DATA_H

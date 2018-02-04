@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
                                         StatisticRulesExpression,
                                         DataProviderExpression<size_t>, DataProviderExpression<std::string>>;
         using ExpressionsChainSpecific = typename FinalConstRule::RuleExpressionsChain ;
-        ExpressionsChainSpecific chain;
-        ExpressionArgs &finalArgs = chain.addFinalExpression(rulesStorage.createRule<LogicExpression>(std::string("RULE_2"), EQUAL));
+        ExpressionsChainSpecific chain(rulesStorage.createRule<LogicExpression>(std::string("RULE_2"), EQUAL));
+        ExpressionArgs &finalArgs = chain.getFinalExpressionArgs();
         finalArgs.m_exist = true;
         chain.addDependantExpression(rulesStorage.createRule<MathExpression>(std::string("RULE_Math_5"), ADD), finalArgs.m_leftArg);
         chain.addDependantExpression(rulesStorage.createRule<DataProviderExpression<size_t>>(std::string("const 2000"), 2000), finalArgs.m_rightArg);

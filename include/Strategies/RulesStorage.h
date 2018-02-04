@@ -22,7 +22,7 @@ public:
     ExpressionType *createRule(RuleInitializer &&...in)
     {
         //get objects map, specially for type RuleType
-        auto &uniqueRuleContainer = get<std::map<typename ExpressionType::ConstructorArgs, std::unique_ptr<ExpressionType>>>(m_uniqueRulesTuple);
+        auto &uniqueRuleContainer = std::get<std::map<typename ExpressionType::ConstructorArgs, std::unique_ptr<ExpressionType>>>(m_uniqueRulesTuple);
         typename ExpressionType::ConstructorArgs key = std::make_tuple(in...);
         //find already constructed object with the same c-tor arguments
         auto ruleIt = uniqueRuleContainer.find(key);
